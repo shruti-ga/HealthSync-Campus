@@ -201,13 +201,14 @@ No backend is required for this prototype.
 
 
 ## Preview
-<img width="736" height="1078" alt="Screenshot 2026-04-03 010210" src="https://github.com/user-attachments/assets/5f2c0806-d8bf-490c-b2f5-68a8f9f06d17" />
-<img width="728" height="1079" alt="Screenshot 2026-04-03 010323" src="https://github.com/user-attachments/assets/5baf1f48-b1d0-42f9-ae00-1145fbc268ff" />
-<img width="729" height="1079" alt="Screenshot 2026-04-03 010335" src="https://github.com/user-attachments/assets/44032a6b-41d5-4cc0-82d1-877b17db604b" />
-<img width="723" height="1074" alt="Screenshot 2026-04-03 010342" src="https://github.com/user-attachments/assets/302215d4-ec43-44ee-bca3-a133776384e0" />
-<img width="718" height="1079" alt="Screenshot 2026-04-03 010230" src="https://github.com/user-attachments/assets/65225af0-78d0-42ea-8c9b-4c2adcaeca3e" />
-<img width="716" height="1079" alt="Screenshot 2026-04-03 010236" src="https://github.com/user-attachments/assets/1a16e1d9-6ef7-46a5-8638-0c097dc6bd80" />
-<img width="700" height="1079" alt="Screenshot 2026-04-03 010243" src="https://github.com/user-attachments/assets/ef29095a-ef7f-4bc1-bdc9-eaa1547d916a" />
+<img width="736" height="1078" alt="Screenshot 2026-04-03 010210" src="https://github.com/user-attachments/assets/0162d744-1183-4c4c-9128-12389c77491b" />
+<img width="728" height="1079" alt="Screenshot 2026-04-03 010323" src="https://github.com/user-attachments/assets/9e86021b-c8bd-437a-9469-ad65811e9ced" />
+<img width="729" height="1079" alt="Screenshot 2026-04-03 010335" src="https://github.com/user-attachments/assets/b046209a-20d8-4c2c-a6ba-d9f870560e9e" />
+<img width="723" height="1074" alt="Screenshot 2026-04-03 010342" src="https://github.com/user-attachments/assets/644fd8b8-47d8-4d48-a0e5-8c71b1f152e4" />
+
+<img width="718" height="1079" alt="Screenshot 2026-04-03 010230" src="https://github.com/user-attachments/assets/161df317-2eff-4cb8-bdbb-fb211e5935fe" />
+<img width="716" height="1079" alt="Screenshot 2026-04-03 010236" src="https://github.com/user-attachments/assets/ce6e392c-404f-4b92-b740-fc7daca295fb" />
+<img width="700" height="1079" alt="Screenshot 2026-04-03 010243" src="https://github.com/user-attachments/assets/6a0a8ead-ab2a-48ed-a7bb-99c4937553a7" />
 
 ---
 
