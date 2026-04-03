@@ -221,7 +221,7 @@ it is a step toward proactive, intelligent, and connected student healthcare.
 
 ## Team
 
-- CodeIt
+- Team Name: CodeIt
 - Shruti Gupta
 
 ---
