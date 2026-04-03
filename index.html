@@ -1,0 +1,1887 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthSync Campus</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #06b6d4;
+            --primary-dark: #0891b2;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --surface-elevated: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --purple: #a78bfa;
+            --navy: #1e293b;
+            --navy-light: #334155;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 12px;
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html.dark-mode {
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-elevated: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+            --navy-light: #cbd5e1;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            transition: background 0.3s ease;
+            overflow: hidden;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--background);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 80px;
+            animation: slideInUp 0.3s ease;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes scale-in {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slide-down {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            padding: 20px;
+            background: var(--background);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: var(--transition);
+            color: var(--text-primary);
+        }
+
+        .icon-btn:hover {
+            background: var(--border);
+            transform: scale(1.05);
+        }
+
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .greeting {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-balance: true;
+        }
+
+        .status-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-lg);
+            animation: scale-in 0.4s ease;
+        }
+
+        .status-card.warning {
+            background: linear-gradient(135deg, var(--warning) 0%, #fbbf24 100%);
+        }
+
+        .status-card.danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #f87171 100%);
+        }
+
+        .status-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-text {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .highlight {
+            background: var(--surface);
+            color: var(--text-primary);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            border-left: 4px solid var(--primary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .card-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .mini-heatmap {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .heatmap-zone {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .heatmap-zone.high {
+            background: var(--danger);
+            animation: pulse 3s infinite;
+        }
+
+        .heatmap-zone.medium {
+            background: var(--warning);
+            animation: pulse 4s infinite;
+        }
+
+        .heatmap-zone.safe {
+            background: var(--success);
+        }
+
+        .heatmap-zone::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 12px;
+            width: auto;
+            margin-bottom: 0;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 8px;
+            margin-right: 8px;
+        }
+
+        .chip:hover {
+            border-color: var(--primary);
+            background: var(--surface);
+        }
+
+        .chip.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: var(--shadow-md);
+        }
+
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--surface-elevated);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            left: 22px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .badge-high {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .badge-medium {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .result-section {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .result-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .result-content {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .timeline-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .alert-card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-left: 4px solid;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+            animation: slide-down 0.4s ease;
+        }
+
+        .alert-card.high {
+            border-left-color: var(--danger);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
+        }
+
+        .alert-card.medium {
+            border-left-color: var(--warning);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+        }
+
+        .alert-card.safe {
+            border-left-color: var(--success);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .alert-icon {
+            font-size: 18px;
+            margin-top: 2px;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .alert-location {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .alert-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .alert-tip {
+            background: var(--surface);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .heatmap-item {
+            padding: 16px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            color: white;
+            font-weight: 700;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .heatmap-item.high {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .heatmap-item.medium {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+            animation: pulse 3s infinite;
+        }
+
+        .heatmap-item.low {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .heatmap-item-name {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .heatmap-item-status {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .wellness-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+            align-items: flex-end;
+        }
+
+        .wellness-modal.active {
+            display: flex;
+        }
+
+        .wellness-content {
+            background: var(--background);
+            width: 100%;
+            max-height: 70vh;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px;
+            overflow-y: auto;
+            animation: scale-in 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: var(--surface);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: var(--border);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 16px;
+            right: 16px;
+            background: var(--text-primary);
+            color: white;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            animation: slide-down 0.3s ease;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.warning {
+            background: var(--warning);
+            color: var(--text-primary);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--background);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            max-width: 480px;
+            margin: 0 auto;
+            z-index: 50;
+            padding-top: 8px;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            border-radius: var(--radius-md);
+        }
+
+        .nav-item:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-state {
+            background: linear-gradient(90deg, var(--surface) 0%, var(--border) 50%, var(--surface) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        .filter-chips {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 0 16px;
+            overflow-x: auto;
+            padding-top: 16px;
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: calc(16px + 0px);
+            padding-right: calc(16px + 0px);
+        }
+
+        .filter-chips::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .filter-chips::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .filter-chip {
+            padding: 8px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+            color: var(--text-primary);
+        }
+
+        .filter-chip:hover {
+            border-color: var(--primary);
+        }
+
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirmation-modal.active {
+            display: flex;
+        }
+
+        .confirmation-box {
+            background: var(--background);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            max-width: 320px;
+            width: 90%;
+            animation: scale-in 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .confirmation-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .confirmation-title {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .confirmation-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .confirmation-details {
+            background: var(--surface);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .time-slot {
+            padding: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .time-slot:hover {
+            border-color: var(--primary);
+        }
+
+        .time-slot.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-primary);
+        }
+
+        .mode-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .mode-btn.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .disclaimer {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--surface);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--warning);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .privacy-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            padding: 8px;
+        }
+
+        .privacy-icon {
+            font-size: 14px;
+        }
+
+        @media (max-height: 700px) {
+            .content {
+                padding-bottom: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <div class="header-title">HealthSync</div>
+            <div class="header-controls">
+                <button class="icon-btn" id="langToggle" title="Toggle Language">🌐</button>
+                <button class="icon-btn" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+            </div>
+        </div>
+
+        <!-- HOME SCREEN -->
+        <div class="screen active" id="homeScreen">
+            <div class="content">
+                <div class="greeting" id="greeting">Hi Riya 👋</div>
+
+                <div class="status-card" id="statusCard">
+                    <div class="status-label">Today's Status</div>
+                    <div class="status-text" id="statusText">You're all set today</div>
+                </div>
+
+                <div class="highlight">
+                    <strong>✨ What's Different Here?</strong><br>
+                    This isn't just a symptom checker. It's your campus-wide early warning system that helps prevent health issues before they spread.
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 12px; font-size: 14px;">Quick Actions</div>
+                    <div class="card-grid">
+                        <div class="card" onclick="switchScreen('checkScreen')">
+                            <div class="card-title">🩺 Symptom Check</div>
+                            <div class="card-subtitle">Quick health assessment</div>
+                        </div>
+                        <div class="card" onclick="switchScreen('alertsScreen')">
+                            <div class="card-title">🚨 Campus Alerts</div>
+                            <div class="card-subtitle">Active health alerts</div>
+                        </div>
+                        <div class="card" onclick="switchScreen('logScreen')">
+                            <div class="card-title">📝 Health Log</div>
+                            <div class="card-subtitle">Your history</div>
+                        </div>
+                        <div class="card" onclick="openWellnessModal('wellness')">
+                            <div class="card-title">💚 Wellness</div>
+                            <div class="card-subtitle">Preventive care</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 12px; font-size: 14px;">Campus Snapshot</div>
+                    <div class="card">
+                        <div class="card-title">🏥 Health Update</div>
+                        <div class="card-subtitle" id="campusUpdate">Flu cases rising in Hostel B (↑ 12 reports)</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 12px; font-size: 14px;">Campus Risk Zones</div>
+                    <div class="mini-heatmap">
+                        <div class="heatmap-zone high">🔴 Hostel A<br>HIGH</div>
+                        <div class="heatmap-zone medium">🟡 Hostel B<br>MEDIUM</div>
+                        <div class="heatmap-zone safe">🟢 Library<br>SAFE</div>
+                        <div class="heatmap-zone safe">🟢 Gym<br>SAFE</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div class="card">
+                        <div class="card-title">💧 Smart Reminder</div>
+                        <div class="card-subtitle">You checked symptoms 2 days ago. Stay hydrated today!</div>
+                    </div>
+                </div>
+
+                <div class="privacy-label">
+                    <span class="privacy-icon">🔒</span>
+                    <span>Your data is private & anonymized</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SYMPTOM CHECK SCREEN -->
+        <div class="screen" id="checkScreen">
+            <div class="content">
+                <div class="greeting">How are you feeling?</div>
+
+                <div class="form-group">
+                    <div class="form-label">What symptoms do you have?</div>
+                    <div id="symptomChips" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <div class="chip" onclick="toggleSymptom(this, 'cough')">🤧 Cough</div>
+                        <div class="chip" onclick="toggleSymptom(this, 'fever')">🌡️ Fever</div>
+                        <div class="chip" onclick="toggleSymptom(this, 'sore_throat')">🗣️ Sore Throat</div>
+                        <div class="chip" onclick="toggleSymptom(this, 'headache')">🧠 Headache</div>
+                        <div class="chip" onclick="toggleSymptom(this, 'fatigue')">😴 Fatigue</div>
+                        <div class="chip" onclick="toggleSymptom(this, 'nausea')">🤢 Nausea</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label">How long?</div>
+                    <input type="range" min="0" max="14" value="2" class="slider" id="durationSlider" oninput="updateDuration(this.value)">
+                    <div style="text-align: center; margin-top: 8px; font-size: 13px; color: var(--text-secondary);">
+                        <span id="durationText">2 days</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label">Severity</div>
+                    <div style="display: flex; gap: 8px;">
+                        <div class="chip" style="flex: 1; justify-content: center;" onclick="toggleSeverity(this, 'mild')">Mild</div>
+                        <div class="chip" style="flex: 1; justify-content: center;" onclick="toggleSeverity(this, 'moderate')">Moderate</div>
+                        <div class="chip" style="flex: 1; justify-content: center;" onclick="toggleSeverity(this, 'severe')">Severe</div>
+                    </div>
+                </div>
+
+                <div class="toggle">
+                    <div style="flex: 1;">
+                        <div class="form-label" style="margin-bottom: 0;">Others sick near you?</div>
+                    </div>
+                    <div class="toggle-switch" id="othersToggle" onclick="toggleSwitch(this)"></div>
+                </div>
+
+                <button class="btn" onclick="analyzeSymptoms()">🤖 Analyze with AI</button>
+
+                <div class="disclaimer">
+                    ℹ️ This is not a medical diagnosis. Always consult a healthcare professional for accurate medical advice.
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div class="screen" id="resultScreen">
+            <div class="content">
+                <div class="greeting">Your Health Analysis</div>
+
+                <div class="status-card" id="resultCard">
+                    <div class="status-label">Risk Level</div>
+                    <div class="status-text" id="resultTitle">Analyzing...</div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-title">📊 Analysis Details</div>
+                    <div class="result-content" id="analysisDetails">
+                        Loading analysis...
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-title">📍 Campus Insight</div>
+                    <div class="result-content" id="campusInsight">
+                        Checking campus data...
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-title">✅ What to Do</div>
+                    <div class="result-content" id="actionItems">
+                        Loading recommendations...
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-title">⚠️ When to Seek Help</div>
+                    <div class="result-content" id="whenToSeek">
+                        Loading guidance...
+                    </div>
+                </div>
+
+                <button class="btn" onclick="switchScreen('appointmentScreen')">📅 Book Appointment</button>
+                <button class="btn btn-secondary" onclick="saveToLog()">💾 Save to Log</button>
+                <button class="btn btn-secondary" onclick="switchScreen('alertsScreen')">View Campus Alerts</button>
+
+                <div class="disclaimer">
+                    ℹ️ This is not a medical diagnosis. Always consult a healthcare professional for accurate medical advice.
+                </div>
+            </div>
+        </div>
+
+        <!-- ALERTS SCREEN -->
+        <div class="screen" id="alertsScreen">
+            <div class="content">
+                <div class="greeting">Campus Health Alerts</div>
+
+                <div class="filter-chips">
+                    <div class="filter-chip active" onclick="filterAlerts(this, 'all')">All</div>
+                    <div class="filter-chip" onclick="filterAlerts(this, 'hostel')">🏠 Hostels</div>
+                    <div class="filter-chip" onclick="filterAlerts(this, 'academic')">🏫 Academic</div>
+                </div>
+
+                <div id="alertsContainer">
+                    <div class="alert-card high">
+                        <div class="alert-header">
+                            <div class="alert-icon">🔴</div>
+                            <div>
+                                <div class="alert-title">Flu Outbreak Alert</div>
+                                <div class="alert-location">Hostel A</div>
+                            </div>
+                        </div>
+                        <div class="alert-description">
+                            12 confirmed flu cases in the past 5 days. Symptoms: fever, cough, body aches.
+                        </div>
+                        <div class="alert-tip">
+                            💡 <strong>Tip:</strong> Wear masks in common areas, stay hydrated, get vaccinated.
+                        </div>
+                    </div>
+
+                    <div class="alert-card medium">
+                        <div class="alert-header">
+                            <div class="alert-icon">🟡</div>
+                            <div>
+                                <div class="alert-title">Cold Wave Detected</div>
+                                <div class="alert-location">Hostel B</div>
+                            </div>
+                        </div>
+                        <div class="alert-description">
+                            8 students reporting cold symptoms. Infection may spread in shared dorms.
+                        </div>
+                        <div class="alert-tip">
+                            💡 <strong>Tip:</strong> Maintain distance, practice hand hygiene, isolate if symptomatic.
+                        </div>
+                    </div>
+
+                    <div class="alert-card safe">
+                        <div class="alert-header">
+                            <div class="alert-icon">🟢</div>
+                            <div>
+                                <div class="alert-title">Library Area Safe</div>
+                                <div class="alert-location">Central Library</div>
+                            </div>
+                        </div>
+                        <div class="alert-description">
+                            No significant health concerns in the past 7 days. Good air circulation.
+                        </div>
+                        <div class="alert-tip">
+                            💡 <strong>Tip:</strong> Safe study environment maintained with regular sanitization.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px; margin-bottom: 40px;">
+                    <div style="font-weight: 600; margin-bottom: 12px; font-size: 14px;">Full Campus Risk Map</div>
+                    <div class="heatmap-grid">
+                        <div class="heatmap-item high" onclick="showZoneDetail('Hostel A')">
+                            <div class="heatmap-item-name">Hostel A</div>
+                            <div class="heatmap-item-status">HIGH RISK</div>
+                        </div>
+                        <div class="heatmap-item medium" onclick="showZoneDetail('Hostel B')">
+                            <div class="heatmap-item-name">Hostel B</div>
+                            <div class="heatmap-item-status">MEDIUM RISK</div>
+                        </div>
+                        <div class="heatmap-item low" onclick="showZoneDetail('Library')">
+                            <div class="heatmap-item-name">Library</div>
+                            <div class="heatmap-item-status">SAFE</div>
+                        </div>
+                        <div class="heatmap-item low" onclick="showZoneDetail('Sports Complex')">
+                            <div class="heatmap-item-name">Sports</div>
+                            <div class="heatmap-item-status">SAFE</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="privacy-label">
+                    <span class="privacy-icon">🔒</span>
+                    <span>Based on anonymized student reports</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- HEALTH LOG SCREEN -->
+        <div class="screen" id="logScreen">
+            <div class="content">
+                <div class="greeting">Your Health Log</div>
+
+                <div id="logContainer">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">Today, 10:30 AM</div>
+                            <div class="timeline-title">Symptom Check: Mild Cold</div>
+                            <div class="timeline-subtitle">Cough, sore throat • Low risk</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">Yesterday, 2:15 PM</div>
+                            <div class="timeline-title">Wellness: Sleep Optimization</div>
+                            <div class="timeline-subtitle">Logged 8 hours • Good recovery</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">2 days ago, 5:00 PM</div>
+                            <div class="timeline-title">Symptom Check: Headache</div>
+                            <div class="timeline-subtitle">Mild headache • Resolved</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="openWellnessModal('wellness')" style="margin-top: 20px;">➕ Add Entry</button>
+            </div>
+        </div>
+
+        <!-- APPOINTMENT BOOKING SCREEN -->
+        <div class="screen" id="appointmentScreen">
+            <div class="content">
+                <div class="greeting">Book an Appointment</div>
+
+                <div class="form-group">
+                    <div class="form-label">Select Time</div>
+                    <div class="time-slots">
+                        <div class="time-slot" onclick="selectTime(this, '9:00 AM')">9:00 AM</div>
+                        <div class="time-slot" onclick="selectTime(this, '10:00 AM')">10:00 AM</div>
+                        <div class="time-slot" onclick="selectTime(this, '2:00 PM')">2:00 PM</div>
+                        <div class="time-slot" onclick="selectTime(this, '3:30 PM')">3:30 PM</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label">Consultation Mode</div>
+                    <div class="mode-selector">
+                        <div class="mode-btn selected" onclick="selectMode(this, 'online')">🎥 Online</div>
+                        <div class="mode-btn" onclick="selectMode(this, 'clinic')">🏥 In-Clinic</div>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-title">📋 Pre-filled Summary</div>
+                    <div class="result-content">
+                        <div class="detail-row">
+                            <div class="detail-label">Symptoms:</div>
+                            <div class="detail-value" id="summarySymptoms">Cough, Fever</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Duration:</div>
+                            <div class="detail-value" id="summaryDuration">2 days</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Severity:</div>
+                            <div class="detail-value" id="summarySeverity">Moderate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="confirmAppointment()">✅ Confirm Booking</button>
+                <button class="btn btn-secondary" onclick="switchScreen('resultScreen')">← Back</button>
+            </div>
+        </div>
+
+        <!-- PROFILE SCREEN -->
+        <div class="screen" id="profileScreen">
+            <div class="content">
+                <div class="greeting">Your Profile</div>
+
+                <div class="result-section">
+                    <div class="result-title">👤 Student Info</div>
+                    <div class="result-content">
+                        <div class="detail-row">
+                            <div class="detail-label">Name:</div>
+                            <div class="detail-value">Riya Sharma</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Roll No:</div>
+                            <div class="detail-value">CSE-2024-041</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Hostel:</div>
+                            <div class="detail-value">Girls Hostel B</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; font-weight: 600; margin-bottom: 12px; font-size: 14px;">Settings</div>
+
+                <div class="toggle">
+                    <div style="flex: 1;">
+                        <div class="form-label" style="margin-bottom: 0;">🔔 Notifications</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                </div>
+
+                <div class="toggle">
+                    <div style="flex: 1;">
+                        <div class="form-label" style="margin-bottom: 0;">🔒 Privacy Mode</div>
+                    </div>
+                    <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+                </div>
+
+                <div class="toggle">
+                    <div style="flex: 1;">
+                        <div class="form-label" style="margin-bottom: 0;">🌙 Dark Mode</div>
+                    </div>
+                    <div class="toggle-switch" id="darkModeToggle" onclick="toggleDarkMode()"></div>
+                </div>
+
+                <button class="btn btn-danger" onclick="openModal('emergency')">🚨 Emergency Contact</button>
+
+                <div class="disclaimer" style="margin-top: 24px;">
+                    Your health data is encrypted and never shared without consent. Privacy is our priority.
+                </div>
+            </div>
+        </div>
+
+        <!-- WELLNESS MODAL -->
+        <div class="wellness-modal" id="wellnessModal">
+            <div class="wellness-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="wellnessTitle">Wellness Hub</div>
+                    <button class="modal-close" onclick="closeWellnessModal()">✕</button>
+                </div>
+
+                <div id="wellnessBody">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div class="card" onclick="openWellnessDetail('mental')">
+                            <div class="card-title">🧠 Mental Health</div>
+                            <div class="card-subtitle">Stress management, mindfulness</div>
+                        </div>
+                        <div class="card" onclick="openWellnessDetail('nutrition')">
+                            <div class="card-title">🥗 Nutrition</div>
+                            <div class="card-subtitle">Healthy eating tips</div>
+                        </div>
+                        <div class="card" onclick="openWellnessDetail('sleep')">
+                            <div class="card-title">😴 Sleep</div>
+                            <div class="card-subtitle">Better sleep habits</div>
+                        </div>
+                        <div class="card" onclick="openWellnessDetail('womens')">
+                            <div class="card-title">👩 Women's Health</div>
+                            <div class="card-subtitle">Cycle tracking, wellness</div>
+                        </div>
+                    </div>
+
+                    <div id="detailContent" style="display: none; margin-top: 20px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONFIRMATION MODAL -->
+        <div class="confirmation-modal" id="confirmationModal">
+            <div class="confirmation-box">
+                <div class="confirmation-icon" id="confirmIcon">✓</div>
+                <div class="confirmation-title" id="confirmTitle">Booking Confirmed!</div>
+                <div class="confirmation-desc" id="confirmDesc">Your appointment has been scheduled</div>
+                <div class="confirmation-details" id="confirmDetails"></div>
+                <button class="btn" onclick="closeConfirmation()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav">
+        <div class="nav-item active" onclick="switchScreen('homeScreen')">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label" id="navHome">Home</div>
+        </div>
+        <div class="nav-item" onclick="switchScreen('checkScreen')">
+            <div class="nav-icon">🩺</div>
+            <div class="nav-label" id="navCheck">Check</div>
+        </div>
+        <div class="nav-item" onclick="switchScreen('alertsScreen')">
+            <div class="nav-icon">🚨</div>
+            <div class="nav-label" id="navAlerts">Alerts</div>
+        </div>
+        <div class="nav-item" onclick="switchScreen('logScreen')">
+            <div class="nav-icon">📝</div>
+            <div class="nav-label" id="navLog">Log</div>
+        </div>
+        <div class="nav-item" onclick="switchScreen('profileScreen')">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label" id="navProfile">Profile</div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        const state = {
+            currentScreen: 'homeScreen',
+            language: 'en',
+            darkMode: false,
+            symptoms: [],
+            duration: 2,
+            severity: 'moderate',
+            others: false,
+            selectedTime: null,
+            selectedMode: 'online',
+            riskLevel: 'low',
+            lastAnalysis: null
+        };
+
+        // Translations
+        const translations = {
+            en: {
+                greeting: 'Hi Riya 👋',
+                home: 'Home',
+                check: 'Check',
+                alerts: 'Alerts',
+                log: 'Log',
+                profile: 'Profile'
+            },
+            hi: {
+                greeting: 'नमस्ते रिया 👋',
+                home: 'होम',
+                check: 'जांच',
+                alerts: 'सतर्कता',
+                log: 'लॉग',
+                profile: 'प्रोफ़ाइल'
+            }
+        };
+
+        // Initialize
+        function init() {
+            updateGreeting();
+            checkDarkMode();
+            updateNavigation();
+        }
+
+        // Screen Navigation
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            state.currentScreen = screenId;
+            updateNavigation();
+            window.scrollTo(0, 0);
+        }
+
+        function updateNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            const screenToNav = {
+                'homeScreen': 0,
+                'checkScreen': 1,
+                'alertsScreen': 2,
+                'logScreen': 3,
+                'profileScreen': 4
+            };
+
+            const navIndex = screenToNav[state.currentScreen];
+            if (navIndex !== undefined) {
+                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            }
+        }
+
+        // Symptom Management
+        function toggleSymptom(element, symptom) {
+            element.classList.toggle('selected');
+            if (state.symptoms.includes(symptom)) {
+                state.symptoms = state.symptoms.filter(s => s !== symptom);
+            } else {
+                state.symptoms.push(symptom);
+            }
+        }
+
+        function updateDuration(value) {
+            state.duration = parseInt(value);
+            const text = value === '0' ? 'Today' : value === '1' ? '1 day' : `${value} days`;
+            document.getElementById('durationText').textContent = text;
+        }
+
+        function toggleSeverity(element, severity) {
+            document.querySelectorAll('.form-group:nth-of-type(3) .chip').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            state.severity = severity;
+        }
+
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+
+        // Analysis
+        function analyzeSymptoms() {
+            if (state.symptoms.length === 0) {
+                showToast('Please select at least one symptom', 'warning');
+                return;
+            }
+
+            // Show loading
+            const card = document.getElementById('resultCard');
+            card.innerHTML = '<div class="status-label">Analyzing</div><div style="display: flex; align-items: center; gap: 8px;"><div class="spinner"></div> <span>Analyzing symptoms + campus trends…</span></div>';
+
+            // Simulate analysis
+            setTimeout(() => {
+                state.riskLevel = calculateRisk();
+                state.lastAnalysis = {
+                    symptoms: [...state.symptoms],
+                    duration: state.duration,
+                    severity: state.severity,
+                    others: state.others,
+                    timestamp: new Date()
+                };
+                displayResults();
+                switchScreen('resultScreen');
+                showToast('Analysis complete', 'success');
+            }, 2000);
+        }
+
+        function calculateRisk() {
+            let risk = 'low';
+            const hasSevereSymptoms = state.symptoms.some(s => ['fever', 'difficulty_breathing'].includes(s));
+            const durationDays = state.duration;
+
+            if (state.severity === 'severe' || (state.severity === 'moderate' && durationDays > 3)) {
+                risk = 'high';
+            } else if (state.severity === 'moderate' || hasSevereSymptoms || durationDays > 5) {
+                risk = 'medium';
+            } else {
+                risk = 'low';
+            }
+
+            return risk;
+        }
+
+        function displayResults() {
+            const riskColors = {
+                'low': { bg: '#10b981', label: 'Low Risk' },
+                'medium': { bg: '#f59e0b', label: 'Moderate Risk' },
+                'high': { bg: '#ef4444', label: 'High Risk' }
+            };
+
+            const risk = state.riskLevel;
+            const color = riskColors[risk];
+
+            document.getElementById('resultCard').style.background = `linear-gradient(135deg, ${color.bg} 0%, ${color.bg}dd 100%)`;
+            document.getElementById('resultTitle').textContent = color.label;
+
+            const symptomsList = state.symptoms.join(', ');
+            document.getElementById('analysisDetails').innerHTML = `
+                <strong>Confidence: 89%</strong><br><br>
+                You reported: ${symptomsList}<br>
+                Duration: ${state.duration} days<br>
+                Severity: ${state.severity}
+            `;
+
+            const nearbyCount = Math.floor(Math.random() * 15) + 5;
+            document.getElementById('campusInsight').innerHTML = `
+                ${nearbyCount} students nearby reported similar symptoms in the past 48 hours.<br><br>
+                <strong>Most Common:</strong> Mild upper respiratory symptoms
+            `;
+
+            const actions = {
+                'low': 'Rest well, stay hydrated, monitor symptoms',
+                'medium': 'Consider visiting the health center, take preventive measures',
+                'high': 'Visit health center today, get professional evaluation'
+            };
+
+            document.getElementById('actionItems').textContent = actions[risk];
+
+            const whenToSeek = {
+                'low': 'Seek help if symptoms worsen or last > 7 days',
+                'medium': 'Visit health center within 24 hours if symptoms persist',
+                'high': 'Seek medical help immediately or today'
+            };
+
+            document.getElementById('whenToSeek').textContent = whenToSeek[risk];
+        }
+
+        // Appointment Booking
+        function selectTime(element, time) {
+            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            element.classList.add('selected');
+            state.selectedTime = time;
+        }
+
+        function selectMode(element, mode) {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+            element.classList.add('selected');
+            state.selectedMode = mode;
+        }
+
+        function confirmAppointment() {
+            if (!state.selectedTime) {
+                showToast('Please select a time slot', 'warning');
+                return;
+            }
+
+            const details = `
+                <div class="detail-row">
+                    <div class="detail-label">Date:</div>
+                    <div class="detail-value">Today</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Time:</div>
+                    <div class="detail-value">${state.selectedTime}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Mode:</div>
+                    <div class="detail-value">${state.selectedMode === 'online' ? '🎥 Online' : '🏥 In-Clinic'}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Confirmation:</div>
+                    <div class="detail-value">#HC-${Math.random().toString(36).substr(2, 6).toUpperCase()}</div>
+                </div>
+            `;
+
+            document.getElementById('confirmDetails').innerHTML = details;
+            openModal('confirmation');
+            showToast('✅ Appointment booked successfully!', 'success');
+        }
+
+        // Health Log
+        function saveToLog() {
+            if (!state.lastAnalysis) {
+                showToast('No analysis to save', 'warning');
+                return;
+            }
+            showToast('✓ Saved to your health log', 'success');
+        }
+
+        // Wellness Hub
+        function openWellnessModal(type) {
+            document.getElementById('wellnessModal').classList.add('active');
+        }
+
+        function closeWellnessModal() {
+            document.getElementById('wellnessModal').classList.remove('active');
+            document.getElementById('wellnessBody').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <div class="card" onclick="openWellnessDetail('mental')">
+                        <div class="card-title">🧠 Mental Health</div>
+                        <div class="card-subtitle">Stress management, mindfulness</div>
+                    </div>
+                    <div class="card" onclick="openWellnessDetail('nutrition')">
+                        <div class="card-title">🥗 Nutrition</div>
+                        <div class="card-subtitle">Healthy eating tips</div>
+                    </div>
+                    <div class="card" onclick="openWellnessDetail('sleep')">
+                        <div class="card-title">😴 Sleep</div>
+                        <div class="card-subtitle">Better sleep habits</div>
+                    </div>
+                    <div class="card" onclick="openWellnessDetail('womens')">
+                        <div class="card-title">👩 Women's Health</div>
+                        <div class="card-subtitle">Cycle tracking, wellness</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openWellnessDetail(type) {
+            const details = {
+                'mental': {
+                    title: '🧠 Mental Health',
+                    content: `
+                        <div class="result-section">
+                            <div class="result-title">Stress Management Tips</div>
+                            <div class="result-content">
+                                • Practice deep breathing (5-4-7 technique)<br>
+                                • Try 10 min meditation daily<br>
+                                • Connect with friends regularly<br>
+                                • Use the wellness corner on campus
+                            </div>
+                        </div>
+                        <div class="result-section">
+                            <div class="result-title">Your Stats</div>
+                            <div class="result-content">
+                                Stress Level: Moderate<br>
+                                Sleep Quality: Good<br>
+                                Last Check-in: 2 days ago
+                            </div>
+                        </div>
+                    `
+                },
+                'nutrition': {
+                    title: '🥗 Nutrition',
+                    content: `
+                        <div class="result-section">
+                            <div class="result-title">Daily Nutrition Guide</div>
+                            <div class="result-content">
+                                • Eat variety of fruits & vegetables<br>
+                                • Include protein in every meal<br>
+                                • Stay hydrated (8-10 glasses/day)<br>
+                                • Limit sugar & processed foods
+                            </div>
+                        </div>
+                        <div class="result-section">
+                            <div class="result-title">Campus Resources</div>
+                            <div class="result-content">
+                                Mess provides balanced meals<br>
+                                Nutrition counseling available<br>
+                                Health center has diet plans
+                            </div>
+                        </div>
+                    `
+                },
+                'sleep': {
+                    title: '😴 Sleep',
+                    content: `
+                        <div class="result-section">
+                            <div class="result-title">Sleep Optimization</div>
+                            <div class="result-content">
+                                • Sleep 7-8 hours daily<br>
+                                • Fixed sleep schedule<br>
+                                • Dark, cool room<br>
+                                • No screens 1 hour before bed
+                            </div>
+                        </div>
+                        <div class="result-section">
+                            <div class="result-title">Your Sleep Pattern</div>
+                            <div class="result-content">
+                                Last Night: 8 hrs<br>
+                                This Week Avg: 7.2 hrs<br>
+                                Quality: Excellent
+                            </div>
+                        </div>
+                    `
+                },
+                'womens': {
+                    title: '👩 Women\'s Health',
+                    content: `
+                        <div class="result-section">
+                            <div class="result-title">Cycle Tracking & Wellness</div>
+                            <div class="result-content">
+                                Track your menstrual cycle<br>
+                                Get alerts for PMS symptoms<br>
+                                Understand your body's patterns<br>
+                                Share data with doctor if needed
+                            </div>
+                        </div>
+                        <div class="result-section">
+                            <div class="result-title">Current Status</div>
+                            <div class="result-content">
+                                Last Cycle: 28 days<br>
+                                Next Expected: 12 days<br>
+                                Health: Optimal
+                            </div>
+                        </div>
+                    `
+                }
+            };
+
+            const detail = details[type];
+            document.getElementById('wellnessTitle').textContent = detail.title;
+
+            const body = document.getElementById('wellnessBody');
+            body.innerHTML = `
+                <div style="position: relative;">
+                    <button class="modal-close" onclick="closeWellnessDetail()" style="position: absolute; top: -50px; right: 0;">✕</button>
+                    ${detail.content}
+                </div>
+            `;
+        }
+
+        function closeWell
